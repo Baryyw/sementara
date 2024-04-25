@@ -7,16 +7,14 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // Add this line
+use Illuminate\Support\Facades\Redis;
+use Symfony\Component\HttpFoundation\Cookie;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        if($request->user()->currentAccessToken()){
-            return response()->json([
-                'message' => 'You has logged in'
-            ], 200);
-        }
+
         $validation = Validator::make($request->all(), [
             'full_name' => 'required',
             'bio' => 'required|max:100',
@@ -72,19 +70,25 @@ class AuthController extends Controller
         }
 
         $token = $request->user()->createToken('Token')->plainTextToken;
+        $cookie = cookie('Access Token', $token, 60 * 24);
 
         return response()->json([
-            'message' => 'Login Message',
+            'message' => 'Login Success',
             'token' => $token,
             'user' => auth()->user()
-        ], 200);
+        ], 200)->withCookie($cookie);
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
+        $cookie = Cookie::forget('Access Token');
         return response()->json([
             'message' => 'Logout Success'
         ], 200);
+    }
+    public function authToken(Request $request)
+    {
+        return;
     }
 }
