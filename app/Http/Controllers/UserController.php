@@ -188,6 +188,7 @@ class UserController extends Controller
         $response = [
             'id' => $user->id,
             'full_name' => $user->full_name,
+            'username' => $user->username,
             'bio' => $user->bio,
             'is_private' => $user->is_private,
             'is_your_account' => ($user->id == $request->user()->id) ? true : false,
